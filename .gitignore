@@ -1,0 +1,40 @@
+# =====================
+# OS / Editor junk
+# =====================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.bak
+*.tmp
+.idea/
+.vscode/
+
+# =====================
+# Java
+# =====================
+*.jar
+*.war
+*.ear
+hs_err_pid*
+target/
+out/
+
+# =====================
+# Python
+# =====================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+
+# =====================
+# Local configs
+# =====================
+.env

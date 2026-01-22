@@ -1,0 +1,5 @@
+{"guesses":{"1": 1, "2": 130, "3": 822, "4": 925, "5": 328, "6": 85, "-1": 24},
+    "time in second":834.9751560688019 ,
+    "average":3.743780008729812,    // average only considering alid ones
+    "accuracy in percent":98.96328293736501
+}
