@@ -236,8 +236,25 @@ public class Wordle {
 
     public static void main(String[] args) throws Exception {
         Wordle solver = new Wordle();
-        long start = System.currentTimeMillis();
 
+        if (args.length >= 1 && args[0].equalsIgnoreCase("hint")) {
+            // GUI hint mode: expects remaining words file
+            if (args.length < 2) {
+                System.err.println("Usage: java Wordle hint <remaining_file>");
+                return;
+            }
+            List<String> remainingWords = Files.readAllLines(Paths.get(args[1]));
+            solver.remaining = new ArrayList<>();
+            for (String w : remainingWords) if (!w.isBlank()) solver.remaining.add(w.trim().toLowerCase());
+            solver.recompute_available();
+
+            String nextGuess = solver.guess();
+            System.out.println(nextGuess == null ? "NO_WORDS_LEFT" : nextGuess);
+            return;
+        }
+
+        // Normal full simulation mode
+        long start = System.currentTimeMillis();
         List<String> words = Files.readAllLines(Paths.get("data/words.txt"));
         Map<Integer, Integer> power = new HashMap<>();
         for (int i : new int[]{1,2,3,4,5,6,-1}) power.put(i, 0);
@@ -258,4 +275,5 @@ public class Wordle {
         // print as single line (Python will read it)
         System.out.println(output);
     }
+
 }
