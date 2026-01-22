@@ -4,7 +4,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class Wordle {
-    
+
     public List<String> SOLUTION;
     public Map<String, Double> FREQUENCY;
     public Map<String, Double> INFO;
@@ -44,7 +44,7 @@ public class Wordle {
 
     private void parseJson(String file, Map<String, Double> target) throws IOException {
         String json = Files.readString(Paths.get(file)).trim();
-        json = json.substring(1, json.length() - 1); // remove { }
+        json = json.substring(1, json.length() - 1);
         if (json.isEmpty()) return;
         for (String pair : json.split(",")) {
             String[] kv = pair.split(":");
@@ -86,7 +86,8 @@ public class Wordle {
     public boolean isvalid(String s) {
         /**Check if word is in remaining and matches positional availability.*/
         if (!remaining.contains(s)) return false;
-        for (int i = 0; i < 5; i++) if (!available.get(i).contains(s.charAt(i))) return false;
+        for (int i = 0; i < 5; i++)
+            if (!available.get(i).contains(s.charAt(i))) return false;
         return true;
     }
 
@@ -134,7 +135,9 @@ public class Wordle {
         guess = guess.toLowerCase();
         pattern = pattern.toUpperCase();
         List<String> next = new ArrayList<>();
-        for (String w : remaining) if (is_consistent(w, guess, pattern)) next.add(w);
+        for (String w : remaining)
+            if (is_consistent(w, guess, pattern))
+                next.add(w);
         remaining = next;
         recompute_available();
     }
@@ -144,6 +147,16 @@ public class Wordle {
         /**guesses the best word that fits.*/
         if (remaining.isEmpty()) return null;
 
+        // 🔒 SAFE entropy usage: valid guesses only, valid outcomes only
+        if (remaining.size() <= 500) {
+            Map<String, Object> result =
+                    Entropy.bestEntropyWord(remaining, remaining);
+
+            String best = (String) result.get("word");
+            if (best != null) return best;
+        }
+
+        // ---------- fallback: ORIGINAL LOGIC (UNCHANGED) ----------
         String bestInfo = null;
         double bestVal = -1;
         for (String w : remaining) {
@@ -163,8 +176,11 @@ public class Wordle {
             Set<Character> uniq = new HashSet<>();
             for (char c : w.toCharArray()) uniq.add(c);
             double freqsum = 0;
-            for (char c : uniq) freqsum += FREQUENCY.getOrDefault(String.valueOf(c), 0.0);
-            if (uniq.size() > bestUniq || (uniq.size() == bestUniq && freqsum > bestFreq)) {
+            for (char c : uniq)
+                freqsum += FREQUENCY.getOrDefault(String.valueOf(c), 0.0);
+
+            if (uniq.size() > bestUniq ||
+               (uniq.size() == bestUniq && freqsum > bestFreq)) {
                 bestUniq = uniq.size();
                 bestFreq = freqsum;
                 best = w;
