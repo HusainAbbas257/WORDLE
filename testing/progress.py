@@ -1,5 +1,8 @@
 # Line chart: accuracy and optimality approaching theoretical limits
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("TkAgg")  # ensures matplotlib uses Tkinter safely
+
 def run():
     print('Here is the the vast progress done by my wordle bot')
     # Ordered runs

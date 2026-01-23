@@ -48,10 +48,12 @@ public class Wordle {
         if (json.isEmpty()) return;
         for (String pair : json.split(",")) {
             String[] kv = pair.split(":");
-            String key = kv[0].trim().replace("\"", "").toLowerCase();
+            if(kv.length < 2) continue;  // ignore bad/malformed entry
+            String key = kv[0].trim().replace("\"","").toLowerCase();
             Double val = Double.parseDouble(kv[1].trim());
             target.put(key, val);
         }
+
     }
 
     // ---------- helpers ----------
@@ -235,7 +237,12 @@ public class Wordle {
     }
 
     public static void main(String[] args) throws Exception {
-        Wordle solver = new Wordle();
+        Wordle solver;
+        if(args.length >= 3) {
+            solver = new Wordle(args[1], args[2], args[3]);
+        } else {
+            solver = new Wordle();
+        }
 
         if (args.length >= 1 && args[0].equalsIgnoreCase("hint")) {
             // GUI hint mode: expects remaining words file

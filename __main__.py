@@ -1,16 +1,16 @@
 import tkinter as tk
 from src.play import WordleTrainer
 from testing import progress as pg
-import os
-import shutil
 import subprocess as sp
+import threading
+import os
+import sys
+
 
 def play():
     try:
         print('Starting the play...')
-        root = tk.Tk()
-        app = WordleTrainer(root)
-        root.mainloop()
+        os.system('python -u \"c:\\Users\\dell\\Desktop\\WORDLE\\src\\play.py\"')
     except Exception as e:
         print(e)
         return 1
@@ -28,41 +28,101 @@ def prog():
 
 def cheat():
     try:
-        print('Starting the cheat system...')
-        
-        sp.run([
-            'java','-cp','src','Helper'
-        ], check=True)
-
+        sp.run(
+            ['java', '-cp', 'src', 'Helper'],
+            check=True
+        )
+    except FileNotFoundError:
+        print("Java not found.")
+        return 1
     except Exception as e:
         print(e)
         return 1
-    else:
-        return 0
-def run():
-    '''allows user to use all the features of this project. returns 1 in case of error or exit else 0;'''
-    print('''please choose the number of option you want to proceed with:\n\t1-play some Wordle games with helper(or without)\n\t2-view progress of the wordle bot graphically.\n\t3-do a little cheating by asking the bot to help you in today\'s wordle\n\t4-quit''')
-    while(True):
-        try:
-            choice=int(input('your choice, Sir: '))
-        except Exception as e:
-            print('invalid try again')
-            continue
-        if(choice in [1,2,3,4]):
-            break
-        else:
-            print('invalid try again')
-    match choice:
-        case 1:
-            return play()
-        case 2:
-            return prog()
-        case 3:
-            return cheat()
-        case 4:
-            print('exiting the programm...')
-            return 1
     return 0
-if(__name__=='__main__'):
-    while run()!=1:
-        pass
+
+
+class LauncherGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Wordle Control Panel")
+        self.root.geometry("420x360")
+        self.root.resizable(False, False)
+
+        self.running = False
+
+        self.container = tk.Frame(root, bg="#0e0e0e")
+        self.container.pack(fill="both", expand=True)
+
+        tk.Label(
+            self.container,
+            text="WORDLE SUITE",
+            fg="white",
+            bg="#0e0e0e",
+            font=("Segoe UI", 20, "bold")
+        ).pack(pady=20)
+
+        self.make_button("Play Wordle", self.safe_play)
+        self.make_button("View Progress", self.safe_prog)
+        self.make_button("Cheat Helper", self.safe_cheat)
+        self.make_button("Quit", self.quit_app)
+
+    def make_button(self, text, command):
+        btn = tk.Button(
+            self.container,
+            text=text,
+            command=command,
+            font=("Segoe UI", 11),
+            bg="#1e1e1e",
+            fg="white",
+            activebackground="#333333",
+            activeforeground="white",
+            relief="flat",
+            width=28,
+            height=2
+        )
+        btn.pack(pady=8)
+
+        # subtle hover animation
+        btn.bind("<Enter>", lambda e: btn.config(bg="#2a2a2a"))
+        btn.bind("<Leave>", lambda e: btn.config(bg="#1e1e1e"))
+
+    def guard(self):
+        if self.running:
+            return False
+        self.running = True
+        self.root.after(100, lambda: setattr(self, "running", False))
+        return True
+
+    def threaded(self, func):
+        threading.Thread(target=func, daemon=True).start()
+
+    def safe_play(self):
+        if self.guard():
+            self.threaded(play)
+
+    def safe_prog(self):
+        if self.guard():
+            self.threaded(prog)
+
+    def safe_cheat(self):
+        if self.guard():
+            self.threaded(cheat)
+
+    def quit_app(self):
+        self.root.destroy()
+        sys.exit(0)
+
+
+def run():
+    try:
+        root = tk.Tk()
+        LauncherGUI(root)
+        root.mainloop()
+    except Exception as e:
+        print(e)
+        return 1
+    return 0
+
+
+if __name__ == '__main__':
+    run()
