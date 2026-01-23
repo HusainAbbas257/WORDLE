@@ -1,3 +1,7 @@
+"""issue: there is a problem that it remakes all that things by itself insead of using Wordle.java for simplicity."""
+
+
+
 import tkinter as tk
 from tkinter import messagebox
 import random
